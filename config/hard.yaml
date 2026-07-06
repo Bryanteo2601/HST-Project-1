@@ -1,0 +1,37 @@
+# Harder instance designed to SEPARATE the metaheuristics.
+# Lower risk aversion makes the return term dominate, so many subsets have similar
+# fitness (a rougher landscape with more local optima) instead of one obvious
+# low-risk winner. Budgets are capped so the search quality (not just the endpoint)
+# differentiates the methods. K stays at the main value (10) so the only difference
+# from the base problem is the risk-aversion lever.
+# Merge on top of default.yaml:  python run_all.py --override config/hard.yaml
+objective:
+  variant: "A"
+  lambda_risk: 0.5
+  gamma_cost: 0.0
+
+constraints:
+  K: 10
+
+sa:
+  t_init: 0.5
+  t_min: 0.05
+  cooling: 0.9
+  iters_per_temp: 20
+
+tabu:
+  iters: 60
+  tenure: 12
+  neighbors: 80
+  patience: 25
+
+ga:
+  pop: 40
+  generations: 40
+
+aco:
+  ants: 15
+  iters: 40
+
+experiment:
+  out_dir: "results_hard"        # keep the easy-problem results/ intact

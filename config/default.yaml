@@ -1,0 +1,92 @@
+# Master configuration for cardinality-constrained portfolio optimization.
+# All hyperparameters live here. The resolved config is serialized into every
+# results/ run folder for reproducibility. Objective-variant overrides live in
+# objective_A.yaml / objective_B.yaml / objective_C.yaml and are merged on top.
+
+seed: 42
+
+data:
+  tickers: null                 # null -> use built-in 50-ticker S&P large-cap list (src/data.py)
+  start: "2021-06-30"
+  end:   "2024-06-30"
+  price_field: "Adj Close"
+  cache_dir: "data/raw"
+  processed_dir: "data/processed"
+  excel_path: "data/portfolio_data.xlsx"
+  annualization: 252
+
+split:                          # chronological, non-overlapping; first-class leakage guard
+  train:      ["2021-06-30", "2023-06-30"]
+  validation: ["2023-06-30", "2023-12-31"]   # hyperparameter tuning ONLY
+  test:       ["2023-12-31", "2024-06-30"]    # look-once, evaluation only
+  walkforward:
+    train_months: 24
+    test_months: 3
+    step_months: 3
+
+covariance:
+  estimator: "ledoit_wolf"      # "sample" | "ledoit_wolf"  <-- main overfitting-mitigation flag
+
+constraints:
+  K: 10                         # max number of holdings (cardinality)
+  u_i: 0.20                     # max weight per name
+  L_s: 0.30                     # max weight per sector
+  fully_invested: true          # sum_i w_i == 1
+
+objective:
+  variant: "A"                  # "A" three-term | "B" Sharpe | "C" L1-regularized QP
+  lambda_risk: 5.0              # risk aversion (term 2)
+  gamma_cost: 1.0               # transaction-cost multiplier; 1.0 applies c_i directly
+  c_i: 0.001                    # proportional turnover cost: 0.001 = 10 bps per $ traded
+  w0: "equal"                   # incumbent weights for |w - w0|: "equal" | "zero"
+  lambda_L1: 0.01               # variant C only: L1 weight penalty
+  risk_free: 0.0                # annualized r_f for Sharpe
+
+inner_qp:
+  use_for_sa: true              # solve weights via inner QP given a fixed subset
+  use_for_ga: true              # (ACO always uses the inner QP)
+  use_for_tabu: true            # Tabu Search apples-to-apples weighting
+  solver: "auto"                # "auto" -> ECOS/OSQP fallback chain
+
+sa:
+  t_init: 1.0
+  t_min: 1.0e-4
+  cooling: 0.95
+  iters_per_temp: 50
+  schedule: "geometric"         # "geometric" | "linear"
+  move_weights: {add: 0.25, remove: 0.25, swap: 0.25, perturb: 0.25}
+
+ga:
+  pop: 80
+  generations: 200
+  cx_rate: 0.8
+  mut_rate: 0.1
+  tournament: 3
+  elitism: 2
+
+aco:
+  ants: 30
+  iters: 100
+  alpha: 1.0                    # pheromone exponent
+  beta: 2.0                     # heuristic (mu/sigma) exponent
+  rho: 0.1                      # evaporation
+  tau_min: 0.01                 # Max-Min lower bound
+  tau_max: 1.0                  # Max-Min upper bound
+
+tabu:                           # Tabu Search: SA's neighborhood + memory
+  iters: 200                    # tabu iterations
+  tenure: 12                    # iterations a reversed move stays forbidden
+  neighbors: 150                # max swap-neighbors evaluated per iteration
+  patience: 40                  # stop after this many non-improving iterations
+
+penalty:
+  weight: 100.0
+  mode: "repair_then_penalty"   # "repair_then_penalty" | "penalty_only"
+
+backtest:
+  rebalance_cost_bps: 10        # transaction cost charged each rebalance
+  charge_on_rebalance: true
+
+experiment:
+  seeds: [0, 1, 2, 3, 4]        # multi-seed stochastic runs (mean +/- std)
+  out_dir: "results"

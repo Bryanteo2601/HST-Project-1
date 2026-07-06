@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+*.egg-info/
+
+# Data, results, and generated outputs (not code)
+data/
+results/
+results_hard/
+results_scaling/
+plots/
+plots_hard/
+plots_scaling/
+*.k12bak/
+*.k12bak
+
+# Reports, workbooks, logs, backups
+report/
+*.docx
+*.docx.*bak
+*.xlsx
+*.log
+
+# OS
+.DS_Store

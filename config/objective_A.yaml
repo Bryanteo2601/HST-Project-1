@@ -1,0 +1,5 @@
+# Variant A: three-term weighted objective (default). Merged on top of default.yaml.
+objective:
+  variant: "A"
+  lambda_risk: 5.0
+  gamma_cost: 1.0

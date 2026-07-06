@@ -1,0 +1,22 @@
+# Universe-scaling study: how do the methods (and the exact solver) behave as the
+# universe grows? Merge on default.yaml:
+#   python -m experiments.exp_scaling --override config/scaling.yaml
+data:
+  universe_size: 150            # pull top-150 most-liquid S&P 500 names
+
+objective:
+  variant: "A"
+  lambda_risk: 0.5              # rough landscape (return term competes with risk)
+  gamma_cost: 0.0
+
+constraints:
+  K: 10                         # same holding limit as the main problem; only N scales
+
+sa:   { t_init: 0.5, t_min: 0.05, cooling: 0.9, iters_per_temp: 20 }
+tabu: { iters: 60, tenure: 12, neighbors: 80, patience: 25 }
+ga:   { pop: 40, generations: 40 }
+aco:  { ants: 15, iters: 40 }
+
+experiment:
+  seeds: [0, 1, 2]              # a few seeds for mean +/- std at each N
+  out_dir: "results_scaling"

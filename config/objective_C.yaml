@@ -1,0 +1,6 @@
+# Variant C: L1-regularized QP for sparsity instead of binary cardinality.
+# Sweep lambda_L1 to control effective cardinality; compare against variant A.
+objective:
+  variant: "C"
+  lambda_risk: 5.0
+  lambda_L1: 0.01

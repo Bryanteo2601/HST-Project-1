@@ -1,0 +1,4 @@
+# Variant B: maximize Sharpe ratio directly as the fitness. Merged on default.yaml.
+objective:
+  variant: "B"
+  risk_free: 0.0
