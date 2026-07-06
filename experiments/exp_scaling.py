@@ -90,7 +90,7 @@ def _plot(df: pd.DataFrame, sizes, path: Path) -> None:
     ax2.set_xlabel("runtime (s, log scale)"); ax2.set_ylabel("gap-to-optimal (%)")
     ax2.set_title("Quality vs runtime  (best = bottom-left)")
     ax2.grid(alpha=0.3, which="both"); ax2.legend(fontsize=8)
-    ax2.annotate("better", xy=(0.03, 1.5), xytext=(0.5, 10), fontsize=10, color="green",
+    ax2.annotate("benchmark", xy=(0.03, 1.5), xytext=(0.5, 10), fontsize=10, color="green",
                  arrowprops=dict(arrowstyle="->", color="green"))
 
     path.parent.mkdir(parents=True, exist_ok=True)
