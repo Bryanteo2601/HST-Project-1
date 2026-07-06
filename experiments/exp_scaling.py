@@ -67,21 +67,32 @@ def run(cfg, bundle, results_dir: Path, plots_dir: Path,
 
 def _plot(df: pd.DataFrame, sizes, path: Path) -> None:
     methods = [m for m in df["method"].unique() if m != "MIQP"]
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(13, 5))
+    colors = {"SA": "C0", "Tabu": "C1", "GA": "C2", "ACO": "C3", "MIQP": "C4"}
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(11, 4.5))
+
+    # LEFT: solution quality vs universe size
     for m in methods:
         d = df[df["method"] == m].sort_values("N")
-        ax1.errorbar(d["N"], d["gap_mean_%"], yerr=d["gap_std_%"], marker="o", capsize=4, label=m)
+        ax1.errorbar(d["N"], d["gap_mean_%"], yerr=d["gap_std_%"], marker="o", capsize=4,
+                     color=colors.get(m), label=m)
     ax1.set_xlabel("universe size N"); ax1.set_ylabel("gap-to-optimal (%)")
     ax1.set_title("Solution quality vs universe size"); ax1.legend(); ax1.grid(alpha=0.3)
     ax1.set_xticks(list(sizes))
 
+    # RIGHT: quality vs runtime trade-off (best = bottom-left). A scatter shows
+    # which method is both accurate and fast, which a runtime-vs-N line hides.
     for m in list(methods) + ["MIQP"]:
-        d = df[df["method"] == m].sort_values("N")
-        ax2.plot(d["N"], d["runtime_mean_s"], marker="s" if m == "MIQP" else "o",
-                 lw=2.5 if m == "MIQP" else 1.5, label=m)
-    ax2.set_xlabel("universe size N"); ax2.set_ylabel("runtime (s)"); ax2.set_yscale("log")
-    ax2.set_title("Runtime vs universe size (exact solver vs metaheuristics)")
-    ax2.legend(); ax2.grid(alpha=0.3, which="both"); ax2.set_xticks(list(sizes))
+        d = df[df["method"] == m]
+        ax2.scatter(d["runtime_mean_s"], d["gap_mean_%"], s=70, edgecolor="k", lw=0.4, zorder=3,
+                    color=colors.get(m), marker="X" if m == "MIQP" else "o",
+                    label=m + (" (exact)" if m == "MIQP" else ""))
+    ax2.set_xscale("log")
+    ax2.set_xlabel("runtime (s, log scale)"); ax2.set_ylabel("gap-to-optimal (%)")
+    ax2.set_title("Quality vs runtime  (best = bottom-left)")
+    ax2.grid(alpha=0.3, which="both"); ax2.legend(fontsize=8)
+    ax2.annotate("better", xy=(0.03, 1.5), xytext=(0.5, 10), fontsize=10, color="green",
+                 arrowprops=dict(arrowstyle="->", color="green"))
+
     path.parent.mkdir(parents=True, exist_ok=True)
     fig.tight_layout(); fig.savefig(path, dpi=130); plt.close(fig)
 
