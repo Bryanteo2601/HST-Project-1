@@ -1,9 +1,11 @@
 # Cardinality-Constrained Portfolio Optimization via Metaheuristics
 
 Course project for **40.018 Heuristics and Systems Theory**. Implements and
-benchmarks Simulated Annealing (main), Genetic Algorithm, and Ant Colony
-Optimization (hybrid with an exact inner QP) for a cardinality-constrained MIQP
+benchmarks four metaheuristics (Simulated Annealing, Tabu Search, Genetic
+Algorithm, and an Ant Colony Optimization + inner-QP hybrid, our main method)
+against an exact Gurobi MIQP for a cardinality-constrained mean-variance
 portfolio problem, with a careful in-sample vs out-of-sample overfitting study.
+The cardinality limit is K = 10 (Evans & Archer, 1968).
 
 ## Problem
 
